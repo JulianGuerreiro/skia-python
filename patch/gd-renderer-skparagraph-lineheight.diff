@@ -1,0 +1,19 @@
+diff --git a/modules/skparagraph/src/Run.h b/modules/skparagraph/src/Run.h
+index f5b3bf57e6..4d039f0bed 100644
+--- a/modules/skparagraph/src/Run.h
++++ b/modules/skparagraph/src/Run.h
+@@ -474,7 +474,13 @@ public:
+     }
+ 
+     SkScalar height() const {
+-        return ::round((double)fDescent - fAscent + fLeading);
++        // gd_renderer patch: the upstream `::round(...)` (a Flutter-ism the Skia
++        // comment itself flags "To be removed") snapped every line's height to an
++        // integer pixel, so line pitch became round(fontSize*lineSpacing) instead of
++        // the exact fractional value. cr positions lines at exact `line*fontSize*
++        // lineSpacing`, so the rounding drifted gd ~0.5px/line and spilled long
++        // multi-line bodies out of the box. Keep the height fractional to match cr.
++        return (double)fDescent - fAscent + fLeading;
+     }
+ 
+     void update(SkScalar a, SkScalar d, SkScalar l) {

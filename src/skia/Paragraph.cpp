@@ -97,6 +97,16 @@ strut_style
         R"docstring(
         )docstring",
         py::arg("leading"))
+    .def("setHeight",
+        py::overload_cast<const SkScalar>(&StrutStyle::setHeight),
+        R"docstring(
+        )docstring",
+        py::arg("height"))
+    .def("setHeightOverride",
+        py::overload_cast<const bool>(&StrutStyle::setHeightOverride),
+        R"docstring(
+        )docstring",
+        py::arg("heightoverride"))
     ;
 
 paragraph_style
@@ -211,6 +221,43 @@ text_style
         R"docstring(
         )docstring",
         py::arg("m"))
+    .def("setHeight",
+        py::overload_cast<SkScalar>(&TextStyle::setHeight),
+        R"docstring(
+        )docstring",
+        py::arg("height"))
+    .def("setHeightOverride",
+        py::overload_cast<bool>(&TextStyle::setHeightOverride),
+        R"docstring(
+        )docstring",
+        py::arg("heightOverride"))
+    .def("getHeight",
+        &TextStyle::getHeight)
+    .def("getHeightOverride",
+        &TextStyle::getHeightOverride)
+    .def("setHalfLeading",
+        py::overload_cast<bool>(&TextStyle::setHalfLeading),
+        R"docstring(
+        )docstring",
+        py::arg("halfLeading"))
+    .def("getHalfLeading",
+        &TextStyle::getHalfLeading)
+    .def("getBaselineShift",
+        &TextStyle::getBaselineShift)
+    .def("setBaselineShift",
+        py::overload_cast<SkScalar>(&TextStyle::setBaselineShift),
+        R"docstring(
+        )docstring",
+        py::arg("baselineshift"))
+    .def("getFontMetrics",
+        &TextStyle::getFontMetrics,
+        R"docstring(
+        )docstring",
+        py::arg("metrics"))
+    .def("getFontSize",
+        &TextStyle::getFontSize)
+    .def("getFontFamilies",
+        &TextStyle::getFontFamilies)
     ;
 
 paragraph

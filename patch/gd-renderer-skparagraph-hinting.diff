@@ -1,0 +1,46 @@
+diff --git a/modules/skparagraph/src/OneLineShaper.cpp b/modules/skparagraph/src/OneLineShaper.cpp
+index de1362cbf8..83218e9d88 100644
+--- a/modules/skparagraph/src/OneLineShaper.cpp
++++ b/modules/skparagraph/src/OneLineShaper.cpp
+@@ -650,7 +650,10 @@ bool OneLineShaper::shape() {
+                 // Create one more font to try
+                 SkFont font(std::move(typeface), block.fStyle.getFontSize());
+                 font.setEdging(SkFont::Edging::kAntiAlias);
+-                font.setHinting(SkFontHinting::kSlight);
++                // gd-renderer patch: kNormal (was kSlight) so shaped glyph advances
++                // round to whole pixels, matching cr-renderer's TextBlob widths and the
++                // Crello box sizing; kSlight left them ~5% wider and overflowed tight boxes.
++                font.setHinting(SkFontHinting::kNormal);
+                 font.setSubpixel(true);
+ 
+                 // Apply fake bold and/or italic settings to the font if the
+diff --git a/modules/skparagraph/src/TextLine.cpp b/modules/skparagraph/src/TextLine.cpp
+index fc7e6d44cf..302567789a 100644
+--- a/modules/skparagraph/src/TextLine.cpp
++++ b/modules/skparagraph/src/TextLine.cpp
+@@ -685,7 +685,9 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
+         ShapeHandler handler(run.heightMultiplier(), run.useHalfLeading(), run.baselineShift(), ellipsis);
+         SkFont font(std::move(typeface), textStyle.getFontSize());
+         font.setEdging(SkFont::Edging::kAntiAlias);
+-        font.setHinting(SkFontHinting::kSlight);
++        // gd-renderer patch: kNormal (was kSlight) so painted glyph positions use the
++        // same whole-pixel advances as the shaping (see OneLineShaper.cpp).
++        font.setHinting(SkFontHinting::kNormal);
+         font.setSubpixel(true);
+ 
+         std::unique_ptr<SkShaper> shaper = SkShapers::HB::ShapeDontWrapOrReorder(
+diff --git a/modules/skparagraph/src/TextStyle.cpp b/modules/skparagraph/src/TextStyle.cpp
+index 492f94fe10..a0a02d4a25 100644
+--- a/modules/skparagraph/src/TextStyle.cpp
++++ b/modules/skparagraph/src/TextStyle.cpp
+@@ -168,7 +168,9 @@ void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
+     SkFont font(fTypeface, fFontSize);
+     font.setEdging(SkFont::Edging::kAntiAlias);
+     font.setSubpixel(true);
+-    font.setHinting(SkFontHinting::kSlight);
++    // gd-renderer patch: kNormal (was kSlight) to keep metrics consistent with the
++    // whole-pixel-advance shaping (see OneLineShaper.cpp).
++    font.setHinting(SkFontHinting::kNormal);
+     font.getMetrics(metrics);
+     if (fHeightOverride) {
+         auto multiplier = fHeight * fFontSize;
